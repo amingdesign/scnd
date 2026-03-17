@@ -1,175 +1,105 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clone vClock - Jam Digital & Alarm</title>
-    <style>
-        /* CSS UNTUK TAMPILAN */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            background-color: #f0f4f7;
-        }
-
-        /* Sidebar Kiri */
-        .sidebar {
-            width: 80px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-        }
-
-        .nav-item {
-            margin-bottom: 25px;
-            text-align: center;
-            font-size: 12px;
-            color: #555;
-            cursor: pointer;
-        }
-
-        .nav-item img { width: 30px; display: block; margin: 0 auto 5px; }
-
-        /* Area Utama */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-            overflow-y: auto;
-        }
-
-        /* Display Jam Besar */
-        .clock-container {
-            background: white;
-            width: 100%;
-            max-width: 800px;
-            padding: 60px 20px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        #time {
-            font-size: 100px;
-            font-weight: bold;
-            color: #333;
-            font-family: 'Courier New', Courier, monospace; /* Font digital-ish */
-            margin: 0;
-        }
-
-        #date {
-            font-size: 24px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .btn-set-alarm {
-            margin-top: 20px;
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        /* Grid Tombol Alarm */
-        .alarm-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .alarm-btn {
-            background-color: #008cba;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .alarm-btn:hover { background-color: #007399; }
-
-    </style>
+    <title>vClock Professional</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="light-theme">
 
-    <div class="sidebar">
-        <div class="nav-item">⏰<br>Alarm</div>
-        <div class="nav-item">⌛<br>Timer</div>
-        <div class="nav-item">⏱️<br>Stopwatch</div>
-        <div class="nav-item">📅<br>Time</div>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">vClock</div>
+            <div class="nav-links">
+                <span>Holidays</span>
+                <span>Tools ▾</span>
+                <span class="icon-btn" onclick="toggleTheme()" id="themeIcon"><i class="fa-regular fa-moon"></i></span>
+                <span class="icon-btn"><i class="fa-solid fa-gear"></i></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="menu-item active"><i class="fa-regular fa-clock"></i><span>Alarm Clock</span></div>
+            <div class="menu-item"><i class="fa-solid fa-hourglass-half"></i><span>Timer</span></div>
+            <div class="menu-item"><i class="fa-solid fa-stopwatch"></i><span>Stopwatch</span></div>
+            <div class="menu-item"><i class="fa-regular fa-calendar"></i><span>Time</span></div>
+        </aside>
+
+        <main class="content">
+            <section class="clock-card">
+                <div class="card-tools">
+                    <i class="fa-solid fa-link"></i> 
+                    <i class="fa-solid fa-minus"></i> 
+                    <i class="fa-solid fa-plus"></i> 
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+                <h1 id="time">00:00:00<span>PM</span></h1>
+                <p id="date">LOADING...</p>
+                <button class="btn-green" onclick="toggleModal(true)">Set Alarm</button>
+
+                <div id="activeAlarmContainer" class="active-alarm-box" style="display: none;">
+                    <div class="divider"></div>
+                    <h3 id="displayAlarmTitle">Alarm</h3>
+                    <div class="alarm-display-center">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="displayAlarmTime">00:00 PM</span>
+                    </div>
+                    <div class="countdown-display">
+                        <i class="fa-solid fa-hourglass-end"></i>
+                        <span id="displayCountdown">00:00:00</span>
+                    </div>
+                    <button class="btn-stop" onclick="stopAlarm()">Stop Alarm</button>
+                </div>
+            </section>
+
+            <section class="quick-alarm-section">
+                <h2 class="section-title">Set the alarm for the specified time</h2>
+                <div id="quickButtons" class="alarm-grid-layout">
+                    </div>
+            </section>
+        </main>
     </div>
 
-    <div class="main-content">
-        
-        <div class="clock-container">
-            <p id="time">00:00:00</p>
-            <p id="date">MEMUAT TANGGAL...</p>
-            <button class="btn-set-alarm" onclick="setAlarm()">Set Alarm</button>
+    <div id="alarmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>Edit Alarm</span>
+                <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <label>Hours</label>
+                        <select id="h-select"></select>
+                    </div>
+                    <div class="col">
+                        <label>Minutes</label>
+                        <select id="m-select"></select>
+                    </div>
+                </div>
+                <div class="row-full">
+                    <label>Sound</label>
+                    <select id="sound-select"><option>Bells</option></select>
+                </div>
+                <div class="row-full">
+                    <label>Title</label>
+                    <input type="text" id="alarm-title" value="Alarm">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline">Test</button>
+                <div class="footer-btns">
+                    <button class="btn-outline" onclick="toggleModal(false)">Cancel</button>
+                    <button class="btn-green" onclick="saveAlarm()">Start</button>
+                </div>
+            </div>
         </div>
-
-        <div class="alarm-grid">
-            <button class="alarm-btn" onclick="quickAlarm('04:00')">4:00 AM</button>
-            <button class="alarm-btn" onclick="quickAlarm('05:00')">5:00 AM</button>
-            <button class="alarm-btn" onclick="quickAlarm('06:00')">6:00 AM</button>
-            <button class="alarm-btn" onclick="quickAlarm('07:00')">7:00 AM</button>
-            <button class="alarm-btn" onclick="quickAlarm('08:00')">8:00 AM</button>
-            <button class="alarm-btn" onclick="quickAlarm('12:00')">12:00 PM</button>
-            <button class="alarm-btn" onclick="quickAlarm('17:00')">5:00 PM</button>
-            <button class="alarm-btn" onclick="quickAlarm('19:00')">7:00 PM</button>
-        </div>
-
     </div>
 
-    <script>
-        // FUNGSI UPDATE JAM
-        function updateTime() {
-            const now = new Date();
-            
-            // Format Jam
-            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            document.getElementById('time').innerText = now.toLocaleTimeString('en-US', optionsTime);
-
-            // Format Tanggal (TUE - MAR 17, 2026)
-            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            
-            const dayName = days[now.getDay()];
-            const monthName = months[now.getMonth()];
-            const dateNum = now.getDate();
-            const year = now.getFullYear();
-
-            document.getElementById('date').innerText = `${dayName} - ${monthName} ${dateNum}, ${year}`;
-        }
-
-        // FUNGSI ALARM (LOGIKA SEDERHANA)
-        function quickAlarm(time) {
-            alert("Alarm disetel untuk jam: " + time);
-        }
-
-        function setAlarm() {
-            const userTime = prompt("Masukkan waktu alarm (Contoh: 07:00):");
-            if(userTime) alert("Alarm disetel ke " + userTime);
-        }
-
-        // Jalankan setiap detik
-        setInterval(updateTime, 1000);
-        updateTime();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
